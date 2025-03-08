@@ -36,7 +36,7 @@ const ListaDeTarefas = () => {
       alert("Preencha o título e a descrição da tarefa.");
       return;
     }
-
+    
     const novaTarefa = {
       id: tarefas.length + 1,
       título: novoTítulo,
@@ -44,7 +44,7 @@ const ListaDeTarefas = () => {
       concluída: false,
     };
 
-    setTarefas([...tarefas, novaTarefa]);
+    setTarefas([ novaTarefa ,...tarefas]);
     setNovoTítulo("");
     setNovaDescrição("");
     setModalVisivel(false);
