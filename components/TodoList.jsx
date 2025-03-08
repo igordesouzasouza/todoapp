@@ -163,3 +163,10 @@ const ListaDeTarefas = () => {
 };
 
 export default ListaDeTarefas;
+
+
+// const tasks = [
+//     {id: 1, title: "Tarefa 1", description: "Descrição da Tarefa 1", completed: false },
+//     {id: 2, title: "Tarefa 2", description: "Descrição da Tarefa 2", completed: true },
+//     // ... adicione mais tarefas conforme necessário
+//   ];
