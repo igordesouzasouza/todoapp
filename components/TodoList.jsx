@@ -11,17 +11,12 @@ const tarefasIniciais = [
   { id: 4, título: "Tarefa 4", descrição: "Descrição da Tarefa 4", concluída: false },
 ];
 
-function Adionado(){
-    if(adicionarTarefa === true){
-        
-    }
-}
-
 const ListaDeTarefas = () => {
   const [tarefas, setTarefas] = useState(tarefasIniciais);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [novoTítulo, setNovoTítulo] = useState("");
   const [novaDescrição, setNovaDescrição] = useState("");
+  const [temaEscuro, setTemaEscuro] = useState(false); 
 
   const alternarConclusao = (id) => {
     setTarefas((tarefasAtuais) =>
@@ -44,32 +39,42 @@ const ListaDeTarefas = () => {
       concluída: false,
     };
 
-    setTarefas([ novaTarefa ,...tarefas]);
+    setTarefas([novaTarefa, ...tarefas]);
     setNovoTítulo("");
     setNovaDescrição("");
     setModalVisivel(false);
   };
 
+  const alternarTema = () => {
+    setTemaEscuro(!temaEscuro);
+  };
+
   return (
-    <View style={tw`flex-1 bg-gray-100 p-4`}>
-      <Text style={tw`text-2xl font-bold text-gray-800 mb-4 mt-16`}>Minhas Tarefas</Text>
+    <View style={tw`flex-1 p-4 ${temaEscuro ? 'bg-black' : 'bg-gray-100'}`}>
+      <Text style={tw`text-2xl font-bold mb-4 mt-16 ${temaEscuro ? 'text-white' : 'text-gray-800'}`}>
+        Minhas Tarefas
+      </Text>
       <View style={tw`space-y-3`}>
         {tarefas.map((tarefa) => (
           <TouchableOpacity
             key={tarefa.id}
             onPress={() => alternarConclusao(tarefa.id)}
             style={tw.style(
-              `flex-row items-start rounded-lg border border-gray-200`,
+              `flex-row items-start rounded-lg border`,
               tarefa.concluída
-                ? "bg-gray-50 opacity-70 p-3" 
-                : "bg-white p-4" 
+                ? temaEscuro
+                  ? "bg-gray-800 opacity-70 p-3 border-white"
+                  : "bg-gray-50 opacity-70 p-3 border-gray-200"
+                : temaEscuro
+                  ? "bg-black p-4 border-white"
+                  : "bg-white p-4 border-gray-200"
             )}
           >
             <View style={tw`mr-3 mt-1`}>
               <Ionicons
                 name={tarefa.concluída ? "checkmark-circle" : "ellipse-outline"}
-                size={tarefa.concluída ? 16 : 20} 
-                color={tarefa.concluída ? "#10b981" : "#9ca3af"}
+                size={tarefa.concluída ? 16 : 20}
+                color={tarefa.concluída ? "#10b981" : temaEscuro ? "#e5e7eb" : "#9ca3af"}
               />
             </View>
             <View style={tw`flex-1`}>
@@ -77,38 +82,56 @@ const ListaDeTarefas = () => {
                 style={tw.style(
                   `font-medium`,
                   tarefa.concluída
-                    ? "text-sm text-gray-500 line-through" 
-                    : "text-lg text-gray-800" 
+                    ? temaEscuro
+                      ? "text-sm text-gray-400 line-through"
+                      : "text-sm text-gray-500 line-through"
+                    : temaEscuro
+                      ? "text-lg text-white"
+                      : "text-lg text-gray-800"
                 )}
               >
                 {tarefa.título}
               </Text>
               <Text
                 style={tw.style(
-                  ``,
                   tarefa.concluída
-                    ? "text-xs text-gray-400 line-through" 
-                    : "text-sm text-gray-600" 
+                    ? temaEscuro
+                      ? "text-xs text-gray-300 line-through"
+                      : "text-xs text-gray-400 line-through"
+                    : temaEscuro
+                      ? "text-sm text-gray-200"
+                      : "text-sm text-gray-600"
                 )}
               >
                 {tarefa.descrição}
-                
               </Text>
-              
-            </View>{
-              tarefa.concluída === false && (<Ionicons onPress={() => setTarefas(tarefas.filter((t) => t.id !== tarefa.id))} name='trash' size={20} color="#ef4444" style={tw`absolute right-6 justify-center items-center top-8`} />)
-            }
-            
+            </View>
+            {tarefa.concluída === false && (
+              <Ionicons
+                onPress={() => setTarefas(tarefas.filter((t) => t.id !== tarefa.id))}
+                name="trash"
+                size={20}
+                color="#ef4444"
+                style={tw`absolute right-6 justify-center items-center top-8`}
+              />
+            )}
           </TouchableOpacity>
         ))}
       </View>
 
-      <TouchableOpacity
-        onPress={() => setModalVisivel(true)}
-        style={tw`absolute bottom-10 right-6`}
-      >
-        <Ionicons name="add-circle" size={60} color="#black" /> 
-      </TouchableOpacity>
+      <View style={tw`absolute bottom-10 right-6 flex-row gap-4`}>
+        <TouchableOpacity onPress={() => setModalVisivel(true)}>
+          <Ionicons name="add-circle" size={60} color={temaEscuro ? "#ffffff" : "#000000"} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={alternarTema}>
+          <Ionicons
+          style={tw`mt-2`}
+            name={temaEscuro ? "sunny" : "moon"}
+            size={40}
+            color={temaEscuro ? "#ffffff" : "#000000"}
+          />
+        </TouchableOpacity>
+      </View>
 
       <Modal
         animationType="fade"
@@ -116,22 +139,24 @@ const ListaDeTarefas = () => {
         visible={modalVisivel}
         onRequestClose={() => setModalVisivel(false)}
       >
-        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-          <View style={tw`bg-white p-6 rounded-lg w-5/6 max-w-md shadow-lg`}>
-            <Text style={tw`text-xl font-bold text-gray-800 mb-4`}>Adicionar Nova Tarefa</Text>
+        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50 `}>
+          <View style={tw`p-6 rounded-lg w-5/6 max-w-md shadow-lg ${temaEscuro ? 'bg-gray-900' : 'bg-white'}`}>
+            <Text style={tw`text-xl font-bold mb-4 ${temaEscuro ? 'text-white' : 'text-gray-800'}`}>
+              Adicionar Nova Tarefa
+            </Text>
 
             <TextInput
-              style={tw`border border-gray-300 rounded-lg p-3 mb-4 text-gray-800`}
+              style={tw`border rounded-lg p-3 mb-4 ${temaEscuro ? 'border-white bg-gray-800 text-white' : 'border-gray-300 text-gray-800'}`}
               placeholder="Título da tarefa"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={temaEscuro ? "#e5e7eb" : "#9ca3af"}
               value={novoTítulo}
               onChangeText={setNovoTítulo}
             />
 
             <TextInput
-              style={tw`border border-gray-300 rounded-lg p-3 mb-4 text-gray-800`}
+              style={tw`border rounded-lg p-3 mb-4 ${temaEscuro ? 'border-white bg-gray-800 text-white' : 'border-gray-300 text-gray-800'}`}
               placeholder="Descrição da tarefa"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={temaEscuro ? "#e5e7eb" : "#9ca3af"}
               value={novaDescrição}
               onChangeText={setNovaDescrição}
               multiline
@@ -144,15 +169,15 @@ const ListaDeTarefas = () => {
                   setNovaDescrição("");
                   setModalVisivel(false);
                 }}
-                style={tw`px-4 py-2 rounded-lg border border-gray-300`}
+                style={tw`px-4 py-2 rounded-lg border ${temaEscuro ? 'border-white' : 'border-gray-300'}`}
               >
-                <Text style={tw`text-gray-600 font-medium`}>Cancelar</Text>
+                <Text style={tw`font-medium ${temaEscuro ? 'text-white' : 'text-gray-600'}`}>Cancelar</Text>
               </Pressable>
               <Pressable
                 onPress={adicionarTarefa}
-                style={tw`px-4 py-2 rounded-lg bg-black`}
+                style={tw`px-4 py-2 rounded-lg ${temaEscuro ? 'bg-white' : 'bg-black'}`}
               >
-                <Text style={tw`text-white font-medium`}>Adicionar</Text>
+                <Text style={tw`font-medium ${temaEscuro ? 'text-black' : 'text-white'}`}>Adicionar</Text>
               </Pressable>
             </View>
           </View>
@@ -163,10 +188,3 @@ const ListaDeTarefas = () => {
 };
 
 export default ListaDeTarefas;
-
-
-// const tasks = [
-//     {id: 1, title: "Tarefa 1", description: "Descrição da Tarefa 1", completed: false },
-//     {id: 2, title: "Tarefa 2", description: "Descrição da Tarefa 2", completed: true },
-//     // ... adicione mais tarefas conforme necessário
-//   ];
